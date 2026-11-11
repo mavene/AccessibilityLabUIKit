@@ -209,7 +209,7 @@ class VoiceControlTestViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: action, for: .touchUpInside)
         // TODO #6: Give this button a Voice Control friendly label (e.g. "Like button").
-        // button.accessibilityLabel = title
+        button.accessibilityLabel = title
 
         NSLayoutConstraint.activate([
             button.widthAnchor.constraint(equalToConstant: 60),
@@ -257,7 +257,7 @@ class VoiceControlTestViewController: UIViewController {
         toggleSwitch.isOn = isToggled
         toggleSwitch.addTarget(self, action: #selector(toggleChanged), for: .valueChanged)
         // TODO #6: Add a descriptive accessibility label so Voice Control recognises this switch.
-        // toggleSwitch.accessibilityLabel = "Notifications"
+        toggleSwitch.accessibilityLabel = "Notifications"
 
         container.addArrangedSubview(label)
         container.addArrangedSubview(toggleSwitch)
@@ -322,7 +322,7 @@ class VoiceControlTestViewController: UIViewController {
         button.contentEdgeInsets = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         button.addTarget(self, action: action, for: .touchUpInside)
         // TODO #6: Label this option clearly (e.g. "Option one button").
-        // button.accessibilityLabel = title
+        button.accessibilityLabel = title
         return button
     }
 
@@ -342,7 +342,7 @@ class VoiceControlTestViewController: UIViewController {
         resetButton.contentEdgeInsets = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 24)
         resetButton.addTarget(self, action: #selector(resetTapped), for: .touchUpInside)
         // TODO #6: Voice Control needs a distinct label here.
-        // resetButton.accessibilityLabel = "Reset"
+        resetButton.accessibilityLabel = "Reset"
 
         let confirmButton = UIButton(type: .system)
         confirmButton.setTitle("Confirm", for: .normal)
@@ -354,7 +354,7 @@ class VoiceControlTestViewController: UIViewController {
         confirmButton.contentEdgeInsets = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 24)
         confirmButton.addTarget(self, action: #selector(confirmTapped), for: .touchUpInside)
         // TODO #6: Add a unique confirmation label.
-        // confirmButton.accessibilityLabel = "Confirm"
+        confirmButton.accessibilityLabel = "Confirm"
 
         container.addArrangedSubview(resetButton)
         container.addArrangedSubview(confirmButton)

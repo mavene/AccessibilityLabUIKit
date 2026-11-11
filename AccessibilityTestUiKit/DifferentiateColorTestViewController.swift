@@ -19,7 +19,8 @@ class DifferentiateColorTestViewController: UIViewController {
 
     // TODO #4: Replace this placeholder return with `UIAccessibility.shouldDifferentiateWithoutColor`.
     private var isDifferentiateEnabled: Bool {
-        return false
+        //return false
+        return UIAccessibility.shouldDifferentiateWithoutColor
     }
 
     override func viewDidLoad() {
@@ -110,7 +111,7 @@ class DifferentiateColorTestViewController: UIViewController {
 
         let statusLabel = UILabel()
         // TODO #4: Update this text to reflect the real setting once you replace the placeholder property.
-        statusLabel.text = "Differentiate Without Colour: (pending)"
+        statusLabel.text = isDifferentiateEnabled ?  "Differentiate Without Colour: ON" : "Differentiate Without Colour: OFF"
         statusLabel.font = .preferredFont(forTextStyle: .title3)
         statusLabel.adjustsFontForContentSizeCategory = true
         statusLabel.textAlignment = .center

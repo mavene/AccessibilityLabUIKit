@@ -108,9 +108,9 @@ class VoiceOverTestViewController: UIViewController {
         counterButton.addTarget(self, action: #selector(incrementCounter), for: .touchUpInside)
 
         // TODO #1: Uncomment the lines below so VoiceOver reads a helpful label, hint, and value.
-        // counterButton.accessibilityLabel = "Counter button"
-        // counterButton.accessibilityHint = "Double tap to increment the counter"
-        // counterButton.accessibilityValue = String(counter)
+        counterButton.accessibilityLabel = "Counter button"
+        counterButton.accessibilityHint = "Double tap to increment the counter"
+        counterButton.accessibilityValue = String(counter)
 
         counterLabel = UILabel()
         counterLabel.text = "Count: \(counter)"
@@ -118,9 +118,9 @@ class VoiceOverTestViewController: UIViewController {
         counterLabel.adjustsFontForContentSizeCategory = true
         counterLabel.textAlignment = .center
         // TODO #1: Give the visual counter a VoiceOver description that mirrors the number shown.
-        // counterLabel.isAccessibilityElement = true
-        // counterLabel.accessibilityLabel = "Item count"
-        // counterLabel.accessibilityValue = "\(counter)"
+        counterLabel.isAccessibilityElement = true
+        counterLabel.accessibilityLabel = "Item count"
+        counterLabel.accessibilityValue = "\(counter)"
 
         container.addArrangedSubview(counterButton)
         container.addArrangedSubview(counterLabel)
@@ -165,8 +165,8 @@ class VoiceOverTestViewController: UIViewController {
         iconView.contentMode = .scaleAspectFit
         stackView.addArrangedSubview(iconView)
         // TODO #1: Add a descriptive label so the weather icon isn't read as a generic image.
-        // iconView.isAccessibilityElement = true
-        // iconView.accessibilityLabel = "Sunny weather icon"
+        iconView.isAccessibilityElement = true
+        iconView.accessibilityLabel = "Sunny weather icon"
 
         let infoStack = UIStackView()
         infoStack.axis = .vertical
@@ -195,9 +195,9 @@ class VoiceOverTestViewController: UIViewController {
         ])
 
         // TODO #1: Group the entire card into one announcement for smoother narration.
-        // weatherContainer.isAccessibilityElement = true
-        // weatherContainer.accessibilityLabel = "Weather display"
-        // weatherContainer.accessibilityValue = "22 degrees Celsius and sunny"
+        weatherContainer.isAccessibilityElement = true
+        weatherContainer.accessibilityLabel = "Weather display"
+        weatherContainer.accessibilityValue = "22 degrees Celsius and sunny"
 
         container.addArrangedSubview(weatherContainer)
 
@@ -218,9 +218,9 @@ class VoiceOverTestViewController: UIViewController {
         sliderContainer.addSubview(volumeSlider)
 
         // TODO #1: Describe the slider in VoiceOver and announce its value.
-        // volumeSlider.accessibilityLabel = "Volume"
-        // volumeSlider.accessibilityHint = "Swipe up or down to adjust volume"
-        // volumeSlider.accessibilityValue = "\(Int(sliderValue)) percent"
+        volumeSlider.accessibilityLabel = "Volume"
+        volumeSlider.accessibilityHint = "Swipe up or down to adjust volume"
+        volumeSlider.accessibilityValue = "\(Int(sliderValue)) percent"
 
         volumeLabel = UILabel()
         volumeLabel.text = "Volume: \(Int(sliderValue))%"
@@ -229,7 +229,7 @@ class VoiceOverTestViewController: UIViewController {
         volumeLabel.textAlignment = .center
         volumeLabel.translatesAutoresizingMaskIntoConstraints = false
         // TODO #1: Hide this label from VoiceOver once the slider announces the same value.
-        // volumeLabel.isAccessibilityElement = false
+        volumeLabel.isAccessibilityElement = false
         sliderContainer.addSubview(volumeLabel)
 
         NSLayoutConstraint.activate([
@@ -271,10 +271,23 @@ class VoiceOverTestViewController: UIViewController {
         counter += 1
         counterLabel.text = "Count: \(counter)"
         // TODO #1: Keep the accessibility value in sync with the visual count.
-        // counterButton.accessibilityValue = String(counter)
+        counterLabel.accessibilityValue = "\(counter)"
+        counterButton.accessibilityValue = String(counter)
 
         // TODO #1: Announce the new value so users hear the update immediately.
-        // UIAccessibility.post(notification: .announcement, argument: "Count is now \(counter)")
+        announce("Count is now \(counter)")
+    }
+
+    /// Posts a VoiceOver announcement after a short delay so it isn't cut off
+    /// by VoiceOver re-reading the element that was just activated.
+    private func announce(_ message: String, delay: TimeInterval = 0.5) {
+        let announcement = NSAttributedString(
+            string: message,
+            attributes: [.accessibilitySpeechQueueAnnouncement: true]
+        )
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            UIAccessibility.post(notification: .announcement, argument: announcement)
+        }
     }
 
     @objc private func toggleLike() {
@@ -282,8 +295,8 @@ class VoiceOverTestViewController: UIViewController {
         updateLikeButton()
 
         // TODO #1: Announce the new like state for VoiceOver users.
-        // let message = isLiked ? "Liked" : "Unliked"
-        // UIAccessibility.post(notification: .announcement, argument: message)
+        let message = isLiked ? "Liked" : "Unliked"
+        announce(message)
     }
 
     private func updateLikeButton() {
@@ -294,16 +307,16 @@ class VoiceOverTestViewController: UIViewController {
         likeButton.setTitleColor(.white, for: .normal)
 
         // TODO #1: Give the button a dynamic label, hint, and value that match its state.
-        // likeButton.accessibilityLabel = isLiked ? "Unlike" : "Like"
-        // likeButton.accessibilityHint = isLiked ? "Double tap to unlike" : "Double tap to like"
-        // likeButton.accessibilityValue = isLiked ? "Liked" : "Not liked"
+        likeButton.accessibilityLabel = isLiked ? "Unlike" : "Like"
+        likeButton.accessibilityHint = isLiked ? "Double tap to unlike" : "Double tap to like"
+        likeButton.accessibilityValue = isLiked ? "Liked" : "Not liked"
     }
 
     @objc private func volumeChanged() {
         sliderValue = Double(volumeSlider.value)
         volumeLabel.text = "Volume: \(Int(sliderValue))%"
         // TODO #1: Keep the slider's accessibility value in sync with the on-screen text.
-        // volumeSlider.accessibilityValue = "\(Int(sliderValue)) percent"
+        volumeSlider.accessibilityValue = "\(Int(sliderValue)) percent"
     }
 }
 

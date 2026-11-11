@@ -39,6 +39,8 @@ class ViewController: UIViewController {
 
         // Reload table when text size changes
         if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory {
+            // Rebuild the header too, since it shows/hides its description by text size
+            tableView.tableHeaderView = createHeaderView()
             tableView.reloadData()
         }
     }
@@ -110,15 +112,16 @@ class ViewController: UIViewController {
 
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             descriptionLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            descriptionLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
-            descriptionLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16)
+            descriptionLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20)
         ])
 
         // Hide description at accessibility sizes
         // TODO #7: At accessibility sizes, hide this decorative description so content fits better.
-        // if isAccessibilitySize {
-        //     descriptionLabel.isHidden = true
-        // }
+        // A hidden view still takes part in Auto Layout, so pin the container's bottom
+        // to whichever label is the last visible one.
+        descriptionLabel.isHidden = isAccessibilitySize
+        let lastVisibleLabel = isAccessibilitySize ? titleLabel : descriptionLabel
+        lastVisibleLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16).isActive = true
 
         // Calculate size
         let targetSize = CGSize(width: view.bounds.width, height: UIView.layoutFittingCompressedSize.height)
@@ -222,6 +225,12 @@ class AccessibilityFeatureCell: UITableViewCell {
     private let descriptionLabel = UILabel()
     private let containerView = UIView()
 
+    // Switchable constraints for the adaptive layout (TODO #7)
+    private var nameLeadingToIcon: NSLayoutConstraint!
+    private var nameLeadingFlush: NSLayoutConstraint!
+    private var descriptionBottom: NSLayoutConstraint!
+    private var nameBottom: NSLayoutConstraint!
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
@@ -265,6 +274,11 @@ class AccessibilityFeatureCell: UITableViewCell {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(descriptionLabel)
 
+        nameLeadingToIcon = nameLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 16)
+        nameLeadingFlush = nameLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16)
+        descriptionBottom = descriptionLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16)
+        nameBottom = nameLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16)
+
         NSLayoutConstraint.activate([
             containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -277,13 +291,15 @@ class AccessibilityFeatureCell: UITableViewCell {
             iconImageView.heightAnchor.constraint(equalToConstant: 40),
 
             nameLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
-            nameLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 16),
             nameLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
 
             descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
             descriptionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            descriptionLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16)
+
+            // Default (normal text size) layout; configure(...) swaps these at accessibility sizes
+            nameLeadingToIcon,
+            descriptionBottom
         ])
     }
 
@@ -292,8 +308,8 @@ class AccessibilityFeatureCell: UITableViewCell {
         descriptionLabel.text = feature.shortDescription
 
         // TODO #7: When the text is huge, hide decorative pieces like the icon and description to save space.
-        // iconImageView.isHidden = isAccessibilitySize
-        // descriptionLabel.isHidden = isAccessibilitySize
+        iconImageView.isHidden = isAccessibilitySize
+        descriptionLabel.isHidden = isAccessibilitySize
 
         // Configure icon
         // TODO #7: Only show the icon when there's enough room; otherwise keep it hidden.
@@ -303,9 +319,15 @@ class AccessibilityFeatureCell: UITableViewCell {
 
         // Adjust constraints based on accessibility size
         // TODO #7: Rework constraints for large text so the label can sit flush with the leading edge.
-        // if isAccessibilitySize {
-        //     nameLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16).isActive = true
-        // }
+        // Deactivate before activating so cell reuse never leaves conflicting constraints.
+        // Hidden views still count in Auto Layout, so the label must also pin to the bottom.
+        if isAccessibilitySize {
+            NSLayoutConstraint.deactivate([nameLeadingToIcon, descriptionBottom])
+            NSLayoutConstraint.activate([nameLeadingFlush, nameBottom])
+        } else {
+            NSLayoutConstraint.deactivate([nameLeadingFlush, nameBottom])
+            NSLayoutConstraint.activate([nameLeadingToIcon, descriptionBottom])
+        }
 
         // Accessibility
         accessibilityLabel = feature.name

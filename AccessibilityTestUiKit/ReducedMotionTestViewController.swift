@@ -30,7 +30,8 @@ class ReducedMotionTestViewController: UIViewController {
 
     // TODO #5: Replace this placeholder with `UIAccessibility.isReduceMotionEnabled`.
     private var isReduceMotionEnabled: Bool {
-        return false
+        //return false
+        return UIAccessibility.isReduceMotionEnabled
     }
 
     override func viewDidLoad() {
@@ -354,6 +355,45 @@ class ReducedMotionTestViewController: UIViewController {
         animationButton.setTitle("Start 30s Animation Demo", for: .normal)
         animationButton.backgroundColor = .systemBlue
         timerLabel.text = "Not running"
+        removeRepeatingAnimations()
+    }
+
+    /// Starts the pulse and rotation if Reduce Motion is off and they aren't already running;
+    /// removes them (leaving static views) if Reduce Motion is on.
+    private func updateRepeatingAnimations() {
+        guard !isReduceMotionEnabled else {
+            removeRepeatingAnimations()
+            return
+        }
+
+        if pulsingHeart.layer.animation(forKey: "pulse") == nil {
+            let pulse = CABasicAnimation(keyPath: "transform.scale")
+            pulse.fromValue = 1.0
+            pulse.toValue = 1.3
+            pulse.duration = 1.0
+            pulse.autoreverses = true
+            pulse.repeatCount = .infinity
+            pulsingHeart.layer.add(pulse, forKey: "pulse")
+        }
+
+        if rotatingArrow.layer.animation(forKey: "rotate") == nil {
+            // A UIView animation to rotationAngle(2π) never moves: 2π is the identity
+            // transform, so UIKit has nothing to interpolate. Animate the layer instead.
+            let rotate = CABasicAnimation(keyPath: "transform.rotation.z")
+            rotate.fromValue = 0
+            rotate.toValue = CGFloat.pi * 2
+            rotate.duration = 2.0
+            rotate.timingFunction = CAMediaTimingFunction(name: .linear)
+            rotate.repeatCount = .infinity
+            rotatingArrow.layer.add(rotate, forKey: "rotate")
+        }
+    }
+
+    private func removeRepeatingAnimations() {
+        pulsingHeart.layer.removeAnimation(forKey: "pulse")
+        rotatingArrow.layer.removeAnimation(forKey: "rotate")
+        pulsingHeart.transform = .identity
+        rotatingArrow.transform = .identity
     }
 
     private func runAnimationLoop() {
@@ -363,31 +403,30 @@ class ReducedMotionTestViewController: UIViewController {
 
         // Movement animation
         // TODO #5: Skip this springy movement entirely when Reduce Motion is on.
-        UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseInOut], animations: {
-            let maxX = self.view.bounds.width - 80
-            let newX = CGFloat.random(in: 20...maxX)
-            self.movingCircle.frame.origin.x = newX
-        })
-
-        // Pulse animation
-        // TODO #5: Swap out this repeating pulse with a static icon for users who reduce motion.
-        UIView.animate(withDuration: duration, delay: 0, options: [.autoreverse, .repeat], animations: {
-            self.pulsingHeart.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
-        })
-
-        // Rotation animation
         if !isReduceMotionEnabled {
-            UIView.animate(withDuration: 2.0, delay: 0, options: [.curveLinear, .repeat], animations: {
-                self.rotatingArrow.transform = CGAffineTransform(rotationAngle: .pi * 2)
+            UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseInOut], animations: {
+                let maxX = self.view.bounds.width - 80
+                let newX = CGFloat.random(in: 20...maxX)
+                self.movingCircle.frame.origin.x = newX
             })
         }
 
+        // Pulse + rotation: repeating animations are started once (not every loop pass)
+        // and removed when Reduce Motion is on.
+        updateRepeatingAnimations()
+
         // Card transition
         // TODO #5: Provide a static alternative (e.g. instant swap) when animations are disabled.
-        UIView.animate(withDuration: duration, delay: 0, options: [], animations: {
-            self.card1.alpha = self.card1.alpha == 1 ? 0 : 1
-            self.card2.alpha = self.card2.alpha == 1 ? 0 : 1
-        })
+        if !isReduceMotionEnabled {
+            UIView.animate(withDuration: duration, delay: 0, options: [], animations: {
+                self.card1.alpha = self.card1.alpha == 1 ? 0 : 1
+                self.card2.alpha = self.card2.alpha == 1 ? 0 : 1
+            })
+        } else {
+            // Static alternative - swap instantly, no fade
+            card1.alpha = card1.alpha == 1 ? 0 : 1
+            card2.alpha = card2.alpha == 1 ? 0 : 1
+        }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
             self?.runAnimationLoop()

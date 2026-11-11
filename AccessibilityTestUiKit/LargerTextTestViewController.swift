@@ -21,7 +21,8 @@ class LargerTextTestViewController: UIViewController {
     // TODO #2: Replace the placeholder return value with the Dynamic Type check below.
     // return traitCollection.preferredContentSizeCategory.isAccessibilityCategory
     private var isAccessibilitySize: Bool {
-        return false
+        //return false
+        return traitCollection.preferredContentSizeCategory.isAccessibilityCategory
     }
 
     // MARK: - Lifecycle

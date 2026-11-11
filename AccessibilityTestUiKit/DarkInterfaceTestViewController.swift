@@ -103,9 +103,9 @@ class DarkInterfaceTestViewController: UIViewController {
         // TODO #3: Replace this placeholder with logic that checks `traitCollection.userInterfaceStyle`.
         // Try showing "Dark Mode" or "Light Mode" and pair it with a SF Symbol like sun or moon.
         // Example:
-        // let isDark = traitCollection.userInterfaceStyle == .dark
-        // modeLabel.text = isDark ? "Dark Mode" : "Light Mode"
-        modeLabel.text = "Interface style goes here"
+        let isDark = traitCollection.userInterfaceStyle == .dark
+        modeLabel.text = isDark ? "Dark Mode" : "Light Mode"
+        //modeLabel.text = "Interface style goes here"
         modeLabel.font = .preferredFont(forTextStyle: .title2)
         modeLabel.adjustsFontForContentSizeCategory = true
         modeLabel.textAlignment = .center
@@ -140,11 +140,11 @@ class DarkInterfaceTestViewController: UIViewController {
 
         // TODO #3: Swap these placeholders with the semantic colours that best represent each case.
         let colors: [(UIColor, String)] = [
-            (.black, "Primary Text (placeholder)")
-            // .label, .secondaryLabel, .tertiaryLabel → uncomment when you're ready
-            // (.label, "Primary Text"),
-            // (.secondaryLabel, "Secondary Text"),
-            // (.tertiaryLabel, "Tertiary Text")
+            //(.black, "Primary Text (placeholder)")
+            //.label, .secondaryLabel, .tertiaryLabel → uncomment when you're ready
+            (.label, "Primary Text"),
+            (.secondaryLabel, "Secondary Text"),
+            (.tertiaryLabel, "Tertiary Text")
         ]
 
         for (color, name) in colors {
@@ -202,9 +202,12 @@ class DarkInterfaceTestViewController: UIViewController {
 
         // TODO #3: Replace these placeholder values with the appropriate semantic backgrounds (systemBackground, secondarySystemBackground, etc.).
         let backgrounds: [(UIColor, String)] = [
-            (.white, "Primary Background (placeholder)"),
-            (.lightGray, "Secondary Background (placeholder)"),
-            (.darkGray, "Tertiary Background (placeholder)")
+//            (.white, "Primary Background (placeholder)"),
+//            (.lightGray, "Secondary Background (placeholder)"),
+//            (.darkGray, "Tertiary Background (placeholder)")
+            (.white, "Primary Background"),
+            (.lightGray, "Secondary Background"),
+            (.darkGray, "Tertiary Background")
         ]
 
         for (bgColor, name) in backgrounds {
